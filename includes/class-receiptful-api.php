@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 class Receiptful_Api {
 
+
 	/**
 	 * Receiptful API key
 	 *
@@ -17,6 +18,7 @@ class Receiptful_Api {
 	 * @var $api_key
 	 */
 	public $api_key;
+
 
 	/**
 	 * URL for Receiptful

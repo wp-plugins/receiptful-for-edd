@@ -210,7 +210,8 @@ class Receiptful_EDD {
 			$payment				= get_post( $edd_receipt_args['id'] );
 			$payment_data			= edd_get_payment_meta( $payment->ID );
 			$amount					= edd_get_payment_amount( $payment->ID );
-			$coupon_code			= $payment_data['user_info']['discount'];
+			$coupon_code			= explode( ', ', $payment_data['user_info']['discount'] );
+			$coupon_code			= reset( $coupon_code ); // Grab the first coupon
 
 			// There IS a coupon used..
 			if ( 'none' != $coupon_code ) {
