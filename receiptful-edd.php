@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.0
+ * Version:			1.0.1
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
