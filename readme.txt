@@ -70,6 +70,13 @@ Yes, Receiptful works with any theme - whether free, commercial or custom. You d
 
 == Changelog ==
 
+= 1.0.2 - 04/03/2015 =
+
+* Add - EDD 2.3 Compatibility
+* Add - Product sync for better recommendations
+* Fix - load translation files
+* Improvement - Prevent a error when API is non-responsive
+
 = 1.0.1 - 19/02/2015 =
 
 * Fix - Notice when multiple coupons are applied
