@@ -78,6 +78,6 @@ Yes, Receiptful works with any theme - whether free, commercial or custom. You d
 * Improvement - Add price variation name to receipt
 * Improvement - Add date param to equal the purchase date
 
-= 1.0.0 = 06/02/2015
+= 1.0.0 - 06/02/2015 =
 
 * Initial Release

@@ -267,7 +267,7 @@ class Receiptful_Email {
 			// Subtotal
 			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
 			// Tax
-			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) $payment_data['tax'], 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
 
 		}
 
@@ -364,12 +364,12 @@ class Receiptful_Email {
 					'firstName'		=> $payment_data['user_info']['first_name'],
 					'lastName'		=> $payment_data['user_info']['last_name'],
 					'company'		=> '',
-					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? $payment_data['user_info']['address']['line1'] 	: '',
-					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? $payment_data['user_info']['address']['line2'] 	: '',
-					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? $payment_data['user_info']['address']['city'] 	: '',
-					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? $payment_data['user_info']['address']['state'] 	: '',
-					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? $payment_data['user_info']['address']['zip'] 		: '',
-					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? $payment_data['user_info']['address']['country'] 	: '',
+					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? (string) $payment_data['user_info']['address']['line1'] 	: '',
+					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? (string) $payment_data['user_info']['address']['line2'] 	: '',
+					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? (string) $payment_data['user_info']['address']['city'] 	: '',
+					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? (string) $payment_data['user_info']['address']['state'] 	: '',
+					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? (string) $payment_data['user_info']['address']['zip'] 	: '',
+					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? (string) $payment_data['user_info']['address']['country'] : '',
 				),
 				'phone'	=> '',
 				'email'	=> $payment_data['user_info']['email'],
@@ -565,7 +565,7 @@ class Receiptful_Email {
 				$response = $this->send_transactional_email( $val );
 
 				// Remove fron queue when its successfully send
-				if ( isset( $response['response']['code'] ) && ( '201' == $response['response']['code'] || '200' == $response['response']['code'] ) ) {
+				if ( ! is_wp_error( $response ) && in_array( $response['response']['code'], array( '201', '200' ) ) ) {
 					unset( $resend_queue[ $key ] );
 				}
 
