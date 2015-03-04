@@ -116,7 +116,7 @@ class EDD_Receiptful_Admin {
 		$settings = array(
 			array(
 				'id'	=> 'receiptful_settings',
-				'name'	=> '<h3 class="title">'. __( 'Receipful', 'receiptful' ) . '</h3>',
+				'name'	=> '<h3 id="receiptful" class="title">'. __( 'Receipful', 'receiptful' ) . '</h3>',
 				'desc'	=> __( 'Setings for Receiptful', 'receiptful' ),
 				'type'	=> 'header'
 			),

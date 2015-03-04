@@ -3,7 +3,7 @@ Contributors: receiptful
 Tags: receiptful, receiptful edd, receiptful easy digital downloads, receipt, receipts, invoice, email, order confirmation, order mail, ecommerce mail
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ We're sending out some beautiful emails combined with a good upsell for your cus
 Because the customer loved **your** service, and gets a great deal for their next order, they will soon order again! Giving you extra revenue.
 
 **Setup in less than 10 minutes**
-As described below, setup is easy and quick! 10 minutes for increased revue? *Who wouldn't want that?!*
+As described below, setup is easy and quick! 10 minutes for increased revenue? *Who wouldn't want that?!*
 
 **Why FREE?**
 You can read about why we made Receiptful free here: [Taking a Moonshot](https://receiptful.com/blog/taking-a-moonshot/)
@@ -70,5 +70,14 @@ Yes, Receiptful works with any theme - whether free, commercial or custom. You d
 
 == Changelog ==
 
-= 1.0.0 = 06/02/2015
+= 1.0.1 - 19/02/2015 =
+
+* Fix - Notice when multiple coupons are applied
+* Fix - Download assignment (only send assigned products in receipt)
+* Fix - Notice with 'Manual Purchases' extension
+* Improvement - Add price variation name to receipt
+* Improvement - Add date param to equal the purchase date
+
+= 1.0.0 - 06/02/2015 =
+
 * Initial Release

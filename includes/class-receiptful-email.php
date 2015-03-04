@@ -73,6 +73,7 @@ class Receiptful_Email {
 		// Resend receipt when it already has a Receiptful ID
 		if ( '' != $receiptful_id = get_post_meta( $payment_id, '_receiptful_receipt_id', true ) ) {
 			$response = $this->resend_receipt( $payment_id, $receiptful_id );
+
 			return $response;
 		}
 
@@ -94,6 +95,9 @@ class Receiptful_Email {
 		$response = Receiptful()->api->receipt( $order_args );
 
 		if ( is_wp_error( $response ) ) {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Message: %s. Receipt added to resend queue.', 'receiptful' ), implode( ', ', $response->get_error_messages() ) ) );
+
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
@@ -112,15 +116,19 @@ class Receiptful_Email {
 				do_action( 'receiptful_add_upsell', $upsell, $payment_id );
 			}
 
-		} else {
+		} elseif ( in_array( $response['response']['code'], array( '401', '500', '503' ) ) ) {
 
-			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %s Error Message: %s', 'receiptful' ),
-				$response['response']['code'], $response['response']['message'] ) );
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s. Receipt added to resend queue.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
+
+		} else {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Code: %s Error Message: %s.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
+
 		}
 
 		/**
@@ -154,8 +162,10 @@ class Receiptful_Email {
 
 		if ( is_wp_error( $response ) ) {
 
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Message: %s. Receipt added to resend queue.', 'receiptful' ), implode( ', ', $response->get_error_messages() ) ) );
+
 			// queue the message for sending via cron
-			$resend_queue	= get_option( '_receiptful_resend_queue' );
+			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
 
@@ -164,15 +174,18 @@ class Receiptful_Email {
 			edd_insert_payment_note( $payment_id, __( 'Customer receipt resent via Receiptful.', 'receiptful' ) );
 			$body = json_decode( $response ['body'], true );
 
-		} else {
+		} elseif ( in_array( $response['response']['code'], array( '401', '500', '503' ) ) ) {
 
-			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %s Error Message: %s', 'receiptful' ),
-				$response['response']['code'], $response['response']['message'] ) );
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s. Receipt added to resend queue.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
+
+		} else {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 		}
 
@@ -198,13 +211,21 @@ class Receiptful_Email {
 		$items			= array();
 		$payment_data	= edd_get_payment_meta( $payment_id );
 
+
 		foreach ( $payment_data['cart_details'] as $download ) {
+
+			$price_id	= edd_get_cart_item_price_id( $download );
+			$name 		= ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' );
+
+			if ( ! is_null( $price_id ) ) {
+				$name 	.= " - " . edd_get_price_option_name( $download['id'], $price_id, $payment_id );
+			}
 
 			$items[] = array(
 				'reference'		=> $download['id'],
-				'description'	=> ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' ),
+				'description'	=> $name,
 				'quantity'		=> $download['quantity'],
-				'amount'		=> $download['item_price'],
+				'amount'		=> isset( $download['item_price'] ) ? $download['item_price'] : 0,
 				'downloadUrls'	=> $this->maybe_get_download_urls( $download['id'], $payment_id, $download ),
 			);
 
@@ -246,7 +267,7 @@ class Receiptful_Email {
 			// Subtotal
 			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
 			// Tax
-			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) $payment_data['tax'], 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
 
 		}
 
@@ -325,6 +346,7 @@ class Receiptful_Email {
 		$from_email		= isset( $edd_settings['from_email'] ) ? $edd_settings['from_email'] : get_bloginfo( 'admin_email' );
 
 		$order_args = array(
+			'date'			=> date_i18n( 'c', strtotime( $payment_data['date'] ) ),
 			'reference'		=> edd_get_payment_number( $payment_id ),
 			'currency'		=> $payment_data['currency'],
 			'amount'		=> number_format( (float) $amount, 2, '.', '' ),
@@ -342,12 +364,12 @@ class Receiptful_Email {
 					'firstName'		=> $payment_data['user_info']['first_name'],
 					'lastName'		=> $payment_data['user_info']['last_name'],
 					'company'		=> '',
-					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? $payment_data['user_info']['address']['line1'] 	: '',
-					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? $payment_data['user_info']['address']['line2'] 	: '',
-					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? $payment_data['user_info']['address']['city'] 	: '',
-					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? $payment_data['user_info']['address']['state'] 	: '',
-					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? $payment_data['user_info']['address']['zip'] 		: '',
-					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? $payment_data['user_info']['address']['country'] 	: '',
+					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? (string) $payment_data['user_info']['address']['line1'] 	: '',
+					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? (string) $payment_data['user_info']['address']['line2'] 	: '',
+					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? (string) $payment_data['user_info']['address']['city'] 	: '',
+					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? (string) $payment_data['user_info']['address']['state'] 	: '',
+					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? (string) $payment_data['user_info']['address']['zip'] 	: '',
+					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? (string) $payment_data['user_info']['address']['country'] : '',
 				),
 				'phone'	=> '',
 				'email'	=> $payment_data['user_info']['email'],
@@ -454,7 +476,8 @@ class Receiptful_Email {
 
 		$urls			= array();
 		$payment_data	= edd_get_payment_meta( $payment_id );
-		$files			= edd_get_download_files( $download_id );
+		$price_id		= edd_get_cart_item_price_id( $item );
+		$files			= edd_get_download_files( $download_id, $price_id );
 
 		if ( ! empty( $files ) ) {
 
@@ -542,7 +565,7 @@ class Receiptful_Email {
 				$response = $this->send_transactional_email( $val );
 
 				// Remove fron queue when its successfully send
-				if ( isset( $response['response']['code'] ) && ( '201' == $response['response']['code'] || '200' == $response['response']['code'] ) ) {
+				if ( ! is_wp_error( $response ) && in_array( $response['response']['code'], array( '201', '200' ) ) ) {
 					unset( $resend_queue[ $key ] );
 				}
 
