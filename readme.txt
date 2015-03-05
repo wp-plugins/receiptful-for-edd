@@ -40,6 +40,8 @@ Simple huh?!
 
 **Please Note:** You require a Receiptful account ([sign up here for a 100% **FREE** account](http://receiptful.com))
 
+[youtube https://www.youtube.com/watch?v=ae3eG7CqUrA&modestbranding=1&controls=0&autohide=1&wmode=transparent&enablejsapi=1&html5=1&rel=0&vq=hd1080]
+
 == Installation ==
 
 1. Go to the **Plugins > Add New page** in your WordPress admin.
