@@ -1,0 +1,127 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Receiptful\n"
+"POT-Creation-Date: 2015-02-27 08:42+0100\n"
+"PO-Revision-Date: 2015-02-27 08:45+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.1\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-SearchPathExcluded-0: ../tests\n"
+
+#: ../includes/admin/class-edd-receiptful-admin.php:94
+msgid ""
+"<strong>Default receipt email settings are unavailable. You're sending "
+"awesome emails through Receiptful.</strong>"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:119
+msgid "Receipful"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:120
+msgid "Setings for Receiptful"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:125
+msgid "API Key"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:126
+#, php-format
+msgid ""
+"Add your API key (<a href=\"%s\" target=\"_blank\">which you can find here</"
+"a>) to get started."
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:150
+#, php-format
+msgid ""
+"<a href=\"%s\">Edit My Template</a> | <a href=\"%s\">View Statistics</a>"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:174
+msgid "Email restrictions"
+msgstr ""
+
+#: ../includes/admin/class-edd-receiptful-admin.php:179
+msgid "List of emails to restrict the coupon usage with. Separate by comma (,)"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:104
+msgid "Customer receipt sent via Receiptful."
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:117
+#: ../includes/class-receiptful-email.php:169
+#, php-format
+msgid ""
+"Error resending customer receipt via Receiptful. Error Code: %s Error "
+"Message: %s"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:164
+msgid "Customer receipt resent via Receiptful."
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:205
+#: ../includes/class-receiptful-email.php:290
+msgid "Nameless product"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:239
+msgid "Discount"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:247
+msgid "Subtotal"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:249
+msgid "Taxes"
+msgstr ""
+
+#: ../includes/class-receiptful-email.php:463
+#: ../includes/class-receiptful-email.php:474
+#, php-format
+msgid "Download %s"
+msgstr ""
+
+#: ../includes/class-receiptful-front-end.php:56
+msgid "Receipt"
+msgstr ""
+
+#: ../includes/class-receiptful-front-end.php:73
+msgid "View receipt online"
+msgstr ""
+
+#: ../includes/class-receiptful-front-end.php:75
+msgid "Sorry, no online receipt available"
+msgstr ""
+
+#: ../includes/class-receiptful-front-end.php:115
+msgid ""
+"This discount is only valid for certain emails. Please use the correct email."
+msgstr ""
+
+#: ../includes/edd-cron-functions.php:27
+msgid "Every quarter"
+msgstr ""
+
+#: ../receiptful-edd.php:302
+msgid ""
+"Receiptful has been activated. Please click <a href=\"edit.php?"
+"post_type=download&page=edd-settings&tab=extensions\">here</a> to add your "
+"API key & supercharge your receipts."
+msgstr ""
+
+#: ../receiptful-edd.php:328
+msgid "Settings"
+msgstr ""

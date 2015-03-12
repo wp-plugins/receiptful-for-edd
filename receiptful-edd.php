@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.0
+ * Version:			1.0.3
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
@@ -36,7 +36,7 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 * @var string $version Plugin version number.
 	 */
-	public $version = '1.0.0';
+	public $version = '1.0.3';
 
 
 	/**
@@ -74,18 +74,18 @@ class Receiptful_EDD {
 
 		if ( ! in_array( 'easy-digital-downloads/easy-digital-downloads.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 			if ( ! is_plugin_active_for_network( 'easy-digital-downloads/easy-digital-downloads.php' ) ) {
-				return;
+				return false;
 			}
 		}
 
 		// Initialize plugin parts
 		$this->init();
 
-		// Add tracking script
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		// Plugin hooks
+		$this->hooks();
 
-		// Tracking calls
-		add_action( 'wp_footer', array( $this, 'print_scripts' ), 99 );
+		// Textdomain
+		$this->load_textdomain();
 
 		do_action( 'receiptful_loaded' );
 
@@ -127,7 +127,7 @@ class Receiptful_EDD {
 			/**
 			 * Admin settings class
 			 */
-			require_once 'includes/admin/class-edd-receiptful-admin.php';
+			require_once plugin_dir_path( __FILE__ ) . '/includes/admin/class-edd-receiptful-admin.php';
 			$this->admin = new EDD_Receiptful_Admin();
 
 		}
@@ -135,13 +135,13 @@ class Receiptful_EDD {
 		/**
 		 * Main Receiptful class
 		 */
-		require_once 'includes/class-receiptful-email.php';
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-receiptful-email.php';
 		$this->email = new Receiptful_Email();
 
 		/**
 		 * Front-end Receiptful class
 		 */
-		require_once 'includes/class-receiptful-front-end.php';
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-receiptful-front-end.php';
 		$this->front_end = new Receiptful_Front_End();
 
 		/**
@@ -151,9 +151,21 @@ class Receiptful_EDD {
 		$this->api = new Receiptful_Api();
 
 		/**
+		 * Receiptful Products sync
+		 */
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-receiptful-products.php';
+		$this->products = new Receiptful_Products();
+
+		/**
 		 * Helper functions
 		 */
 		require_once plugin_dir_path( __FILE__ ) . '/includes/edd-helper-functions.php';
+
+		/**
+		 * Receiptful CRON events
+		 */
+		require_once plugin_dir_path( __FILE__ ) . '/includes/edd-cron-functions.php';
+
 
 		if ( in_array( 'edd-software-licensing/edd-software-licenses.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) || is_plugin_active_for_network( 'edd-software-licensing/edd-software-licenses.php' ) ) {
 
@@ -165,11 +177,47 @@ class Receiptful_EDD {
 
 		}
 
+	}
+
+
+	/**
+	 * Hooks.
+	 *
+	 * Initial plugin hooks.
+	 *
+	 * @since 1.0.2
+	 */
+	public function hooks() {
+
 		// Add the plugin page Settings and Docs links
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'receiptful_plugin_links' ));
 
 		// Plugin activation message
 		add_action( 'admin_notices', array( $this, 'plugin_activation' ) ) ;
+
+		// Add tracking script
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		// Tracking calls
+		add_action( 'wp_footer', array( $this, 'print_scripts' ), 99 );
+
+	}
+
+
+	/**
+	 * Textdomain.
+	 *
+	 * Load the textdomain based on WP language.
+	 *
+	 * @since 1.0.2
+	 */
+	public function load_textdomain() {
+
+		$locale = apply_filters( 'plugin_locale', get_locale(), 'receiptful' );
+
+		// Load textdomain
+		load_textdomain( 'receiptful', WP_LANG_DIR . '/receiptful-for-edd/receiptful-' . $locale . '.mo' );
+		load_plugin_textdomain( 'receiptful', false, basename( dirname( __FILE__ ) ) . '/languages' );
 
 	}
 
@@ -210,7 +258,8 @@ class Receiptful_EDD {
 			$payment				= get_post( $edd_receipt_args['id'] );
 			$payment_data			= edd_get_payment_meta( $payment->ID );
 			$amount					= edd_get_payment_amount( $payment->ID );
-			$coupon_code			= $payment_data['user_info']['discount'];
+			$coupon_code			= explode( ', ', $payment_data['user_info']['discount'] );
+			$coupon_code			= reset( $coupon_code ); // Grab the first coupon
 
 			// There IS a coupon used..
 			if ( 'none' != $coupon_code ) {
@@ -280,7 +329,7 @@ class Receiptful_EDD {
 	 */
 	function receiptful_plugin_links( $links ) {
 
-		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=download&page=edd-settings&tab=extensions' ) . '">' . __( 'Settings', 'receiptful' ) . '</a>';
+		$links['settings'] = '<a href="' . admin_url( 'edit.php?post_type=download&page=edd-settings&tab=extensions#receiptful' ) . '">' . __( 'Settings', 'receiptful' ) . '</a>';
 
 		return $links;
 
@@ -288,12 +337,6 @@ class Receiptful_EDD {
 
 
 }
-
-
-/**
- * Receiptful CRON events
- */
-require_once plugin_dir_path( __FILE__ ) . '/includes/edd-cron-functions.php';
 
 
 /**
