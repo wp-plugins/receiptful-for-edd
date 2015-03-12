@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 class Receiptful_Email {
 
+
 	/**
 	 * Constructor.
 	 *
@@ -210,23 +211,33 @@ class Receiptful_Email {
 
 		$items			= array();
 		$payment_data	= edd_get_payment_meta( $payment_id );
-
+		$meta_data		= array();
 
 		foreach ( $payment_data['cart_details'] as $download ) {
 
-			$price_id	= edd_get_cart_item_price_id( $download );
-			$name 		= ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' );
+			$edd_download	= new EDD_Download( $download['id'] );
+			$price_id		= edd_get_cart_item_price_id( $download );
+			$name 			= ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' );
 
 			if ( ! is_null( $price_id ) ) {
 				$name 	.= " - " . edd_get_price_option_name( $download['id'], $price_id, $payment_id );
+			}
+
+			// Meta
+			if ( $download_note = $edd_download->get_notes() ) {
+				$meta_data[] = array(
+					'key'	=> __( 'Note', 'receiptful' ),
+					'value'	=> $download_note,
+				);
 			}
 
 			$items[] = array(
 				'reference'		=> $download['id'],
 				'description'	=> $name,
 				'quantity'		=> $download['quantity'],
-				'amount'		=> isset( $download['item_price'] ) ? $download['item_price'] : 0,
+				'amount'		=> isset( $download['item_price'] ) ? number_format( (float) $download['item_price'], 2, '.', '' ) : number_format( 0, 2, '.', '' ),
 				'downloadUrls'	=> $this->maybe_get_download_urls( $download['id'], $payment_id, $download ),
+				'metas'			=> $meta_data,
 			);
 
 		}

@@ -106,8 +106,8 @@ class Receiptful_Api {
 	 *
 	 * @since 1.0.2
 	 *
-	 * @param	int				$product_id		Product ID to update in Receiptful.
-	 * @return	array|WP_Error					WP_Error when the API call fails, otherwise the API response.
+	 * @param	int				$args	List of formatted products according the API specs.
+	 * @return	array|WP_Error			WP_Error when the API call fails, otherwise the API response.
 	 */
 	public function update_products( $args ) {
 
@@ -131,6 +131,26 @@ class Receiptful_Api {
 	public function delete_product( $product_id ) {
 
 		$response = $this->api_delete( '/products/' . $product_id );
+
+		return $response;
+
+	}
+
+
+	/**
+	 * Upload receipts.
+	 *
+	 * Bulk upload old receipts to sync with Receiptful. This ensures
+	 * better quality recommendations for similar products.
+	 *
+	 * @since 1.0.3
+	 *
+	 * @param	int				$args	List of formatted receipts according the API specs.
+	 * @return	array|WP_Error			WP_Error when the API call fails, otherwise the API response.
+	 */
+	public function upload_receipts( $args ) {
+
+		$response = $this->api_call( '/receipts/bulk', $args );
 
 		return $response;
 

@@ -112,7 +112,7 @@ class Receiptful_Front_End {
 		if ( is_array( $restriction_emails ) && ! empty( $restriction_emails ) ) {
 			$email_matches = array_intersect( $user_email, $restriction_emails );
 			if ( empty( $email_matches ) || ! is_array( $email_matches ) ) {
-				edd_set_error( 'edd-discount-error', __( 'This discount is only valid for certain emails. Please use the correct email.', 'Receiptful' ) );
+				edd_set_error( 'edd-discount-error', __( 'This discount is only valid for certain emails. Please use the correct email.', 'receiptful' ) );
 				return false;
 			}
 		}
