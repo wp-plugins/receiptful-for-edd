@@ -60,7 +60,7 @@ class EDD_Receiptful_Admin {
 		add_filter( 'edd_settings_extensions', array( $this, 'register_settings' ) );
 
 		// Description setting field
-		add_action( 'edd_receiptful_description_callback', array( $this, 'receiptful_description_callback' ) );
+		add_action( 'edd_receiptful_description', array( $this, 'receiptful_description_callback' ) );
 
 		// Email restriction field
 		add_action( 'edd_edit_discount_form_bottom', array( $this, 'edit_coupon_add_email_restriction_field' ), 10, 2 );
@@ -126,7 +126,7 @@ class EDD_Receiptful_Admin {
 			array(
 				'id'	=> 'receiptful_api_key',
 				'name'	=> __( 'API Key', 'receiptful' ),
-				'desc'	=> sprintf( __( 'Add your API key (<a href="%s" target="_blank">which you can find here</a>) to get started.', 'receiptful' ), $this->receiptful_profile_url ),
+				'desc'	=> sprintf( __( 'Add your API key (<a href="%s" target="_blank">which you can find here</a>) to get started.', 'receiptful' ), esc_attr( $this->receiptful_profile_url ) ),
 				'type'	=> 'text',
 			),
 			array(
@@ -150,7 +150,9 @@ class EDD_Receiptful_Admin {
 	 */
 	public function receiptful_description_callback() {
 
-		sprintf( __( '<a href="%s">Edit My Template</a> | <a href="%s">View Statistics</a>', 'receiptful' ), $this->receiptful_template_url, $this->receiptful_stats_url );
+		$template_url 	= esc_attr( $this->receiptful_template_url );
+		$stats_url		= esc_attr( $this->receiptful_stats_url );
+		echo sprintf( __( '<a href="%s" target="_blank">Edit My Template</a> | <a href="%s" target="_blank">View Statistics</a>', 'receiptful' ), $template_url, $stats_url );
 
 	}
 
@@ -178,9 +180,9 @@ class EDD_Receiptful_Admin {
 					</th>
 					<td>
 						<input type='text' id='edd-restrict-email' name='email_restrict' value='<?php echo esc_attr( $emails ); ?>' style='width: 400px;'/>
-						<p class='description edd-email-restriction-description'>
-							<?php _e( 'List of emails to restrict the coupon usage with. Separate by comma (,)', 'receiptful' ); ?>
-						</p>
+						<p class='description edd-email-restriction-description'><?php
+							_e( 'List of emails to restrict the coupon usage with. Separate by comma (,)', 'receiptful' );
+						?></p>
 					</td>
 				</tr>
 			</tbody>

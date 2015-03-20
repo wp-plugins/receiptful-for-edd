@@ -73,9 +73,7 @@ class Receiptful_Email {
 
 		// Resend receipt when it already has a Receiptful ID
 		if ( '' != $receiptful_id = get_post_meta( $payment_id, '_receiptful_receipt_id', true ) ) {
-			$response = $this->resend_receipt( $payment_id, $receiptful_id );
-
-			return $response;
+			return $this->resend_receipt( $payment_id, $receiptful_id );
 		}
 
 
@@ -259,24 +257,25 @@ class Receiptful_Email {
 	 */
 	public function api_args_get_subtotals( $payment_id ) {
 
-		$subtotals		= array();
-		$payment_data	= edd_get_payment_meta( $payment_id );
+		$subtotals			= array();
+		$payment_data		= edd_get_payment_meta( $payment_id );
+		$discounts 			= wp_list_pluck( $payment_data['cart_details'], 'discount' );
+		$discount_amount 	= array_sum( $discounts );
+
+		// Subtotal
+		if ( edd_use_taxes() || 0 < $discount_amount ) {
+			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
+		}
 
 		// Discount
-		if ( 'none' != $payment_data['user_info']['discount'] ) {
-			$discounts = wp_list_pluck( $payment_data['cart_details'], 'discount' );
-
-			if ( is_array( $discounts ) ) {
-				$discount_amount = array_sum( $discounts );
-				$subtotals[] = array( 'description' => __( 'Discount', 'receiptful' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
-			}
+		if ( 0 < $discount_amount ) {
+			$subtotals[] = array( 'description' => __( 'Discount', 'receiptful' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
 		}
 
 		// Tax
 		if ( edd_use_taxes() ) {
 
-			// Subtotal
-			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
+
 			// Tax
 			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
 

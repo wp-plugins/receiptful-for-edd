@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.3
+ * Version:			1.0.4
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
@@ -36,7 +36,7 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 * @var string $version Plugin version number.
 	 */
-	public $version = '1.0.3';
+	public $version = '1.0.4';
 
 
 	/**
@@ -232,7 +232,7 @@ class Receiptful_EDD {
 	public function enqueue_scripts() {
 
 		// Add tracking script
-		wp_enqueue_script( 'receiptful-tracking', 'https://app.receiptful.com/scripts/tracking.js', array(), $this->version, true );
+		wp_enqueue_script( 'receiptful-tracking', 'https://media.receiptful.com/scripts/tracking.js', array(), $this->version, true );
 
 	}
 
@@ -259,7 +259,7 @@ class Receiptful_EDD {
 			$payment_data			= edd_get_payment_meta( $payment->ID );
 			$amount					= edd_get_payment_amount( $payment->ID );
 			$coupon_code			= explode( ', ', $payment_data['user_info']['discount'] );
-			$coupon_code			= reset( $coupon_code ); // Grab the first coupon
+			$coupon_code			= esc_js( reset( $coupon_code ) ); // Grab the first coupon
 
 			// There IS a coupon used..
 			if ( 'none' != $coupon_code ) {
@@ -274,9 +274,9 @@ class Receiptful_EDD {
 			}
 
 			?><script type='text/javascript'>
-				Receiptful.conversion.reference	= '<?php echo $payment->ID; ?>';
-				Receiptful.conversion.amount	= <?php echo $amount; ?>;
-				Receiptful.conversion.currency	= '<?php echo edd_get_currency(); ?>';
+				Receiptful.conversion.reference	= '<?php echo esc_js( $payment->ID ); ?>';
+				Receiptful.conversion.amount	= <?php echo esc_js( $amount ); ?>;
+				Receiptful.conversion.currency	= '<?php echo esc_js( edd_get_currency() ); ?>';
 				<?php echo $coupon_tracking_code; ?>
 				Receiptful.trackConversion();
 			</script><?php
