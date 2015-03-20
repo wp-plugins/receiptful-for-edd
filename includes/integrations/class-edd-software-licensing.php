@@ -77,7 +77,6 @@ class Receiptful_EDD_Software_Licensing_Compatibility {
 			}
 		}
 
-
 		return $items;
 
 	}
