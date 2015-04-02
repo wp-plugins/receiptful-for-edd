@@ -2,8 +2,8 @@
 Contributors: receiptful
 Tags: receiptful, receiptful edd, receiptful easy digital downloads, receipt, receipts, invoice, email, order confirmation, order mail, ecommerce mail
 Requires at least: 3.6.0
-Tested up to: 4.1
-Stable tag: 1.0.0
+Tested up to: 4.1.1
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ We're sending out some beautiful emails combined with a good upsell for your cus
 Because the customer loved **your** service, and gets a great deal for their next order, they will soon order again! Giving you extra revenue.
 
 **Setup in less than 10 minutes**
-As described below, setup is easy and quick! 10 minutes for increased revue? *Who wouldn't want that?!*
+As described below, setup is easy and quick! 10 minutes for increased revenue? *Who wouldn't want that?!*
 
 **Why FREE?**
 You can read about why we made Receiptful free here: [Taking a Moonshot](https://receiptful.com/blog/taking-a-moonshot/)
@@ -39,6 +39,8 @@ Simple huh?!
 [Open a support ticket](https://wordpress.org/support/plugin/receiptful-for-edd), We're here to make your life easier!
 
 **Please Note:** You require a Receiptful account ([sign up here for a 100% **FREE** account](http://receiptful.com))
+
+[youtube https://www.youtube.com/watch?v=ae3eG7CqUrA&modestbranding=1&controls=0&autohide=1&wmode=transparent&enablejsapi=1&html5=1&rel=0&vq=hd1080]
 
 == Installation ==
 
@@ -70,5 +72,42 @@ Yes, Receiptful works with any theme - whether free, commercial or custom. You d
 
 == Changelog ==
 
-= 1.0.0 = 06/02/2015
+= 1.0.5 - 02/04/2015 =
+
+* [Add] - Unit tests!
+* [Add] - French translations
+* [Fix] - Typo in filter name 'receiptful_api_args_related_products'
+* [Improvement] - Prevent getting related products in the initial product sync
+* [Improvement] - Automatically picking up Tax/totals translation from WooCommerce
+
+= 1.0.4 - 20/03/2015 =
+
+* [Add] - Support for discounted software licensing renewals
+* [Fix] - Changed the Javascript URL to actually contain the CDN
+* [Improvement] - Improved escaping
+
+= 1.0.3 - 12/03/2015 =
+
+* [Add] - Receipt sync for better recommendations
+* [Add] - Product note support
+* [Improvement] - Prevent API error when item amount is float 0
+
+= 1.0.2 - 04/03/2015 =
+
+* [Add] - EDD 2.3 Compatibility
+* [Add] - Product sync for better recommendations
+* [Add] - JavaScript CDN for improved loading time
+* [Fix] - load translation files
+* [Improvement] - Prevent a error when API is non-responsive
+
+= 1.0.1 - 19/02/2015 =
+
+* [Fix] - Notice when multiple coupons are applied
+* [Fix] - Download assignment (only send assigned products in receipt)
+* [Fix] - Notice with 'Manual Purchases' extension
+* [Improvement] - Add price variation name to receipt
+* [Improvement] - Add date param to equal the purchase date
+
+= 1.0.0 - 06/02/2015 =
+
 * Initial Release

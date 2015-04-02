@@ -70,7 +70,7 @@ class Receiptful_Front_End {
 		$receiptful_web_link = get_post_meta( $payment_id, '_receiptful_web_link', true );
 		?><td class='edd_purchase_receipt'><?php
 			if ( $receiptful_web_link ) {
-				?><a href='<?php echo $receiptful_web_link['webview']; ?>'><?php _e( 'View receipt online', 'receiptful' ); ?></a><?php
+				?><a href='<?php echo esc_attr( $receiptful_web_link['webview'] ); ?>'><?php _e( 'View receipt online', 'receiptful' ); ?></a><?php
 			} else {
 				_e( 'Sorry, no online receipt available', 'receiptful' );
 			}
@@ -112,7 +112,7 @@ class Receiptful_Front_End {
 		if ( is_array( $restriction_emails ) && ! empty( $restriction_emails ) ) {
 			$email_matches = array_intersect( $user_email, $restriction_emails );
 			if ( empty( $email_matches ) || ! is_array( $email_matches ) ) {
-				edd_set_error( 'edd-discount-error', __( 'This discount is only valid for certain emails. Please use the correct email.', 'Receiptful' ) );
+				edd_set_error( 'edd-discount-error', __( 'This discount is only valid for certain emails. Please use the correct email.', 'receiptful' ) );
 				return false;
 			}
 		}

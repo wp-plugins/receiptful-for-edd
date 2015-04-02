@@ -29,6 +29,10 @@ class Receiptful_EDD_Software_Licensing_Compatibility {
 	 * Add item license meta to the ordered products.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param	array 	$items 		List of arrays with the items ordered.
+	 * @param	int		$payment_id	ID of the payment.
+	 * @return	array				List of arrays with the items ordered, containing license keys as meta.
 	 */
 	public function add_license_meta( $items, $payment_id ) {
 
@@ -40,9 +44,8 @@ class Receiptful_EDD_Software_Licensing_Compatibility {
 
 				// Bundled product
 				if ( edd_is_bundled_product( $download['id'] ) ) {
-					$bundled_products = edd_get_bundled_products( $download['id'] );
 
-					if ( $bundled_products ) {
+					if ( $bundled_products = edd_get_bundled_products( $download['id'] ) ) {
 						foreach ( $bundled_products as $bundle_item_id ) {
 
 							$license = $licensing->get_license_by_purchase( $payment_id, $bundle_item_id, $key );
@@ -51,7 +54,7 @@ class Receiptful_EDD_Software_Licensing_Compatibility {
 								continue;
 							}
 
-							$license_key 	= $licensing->get_license_key( $license->ID );
+							$license_key = $licensing->get_license_key( $license->ID );
 							$items[ $key ]['metas'][] = array(
 								'key' 	=> 'License key',
 								'value'	=> $license_key,
@@ -72,11 +75,8 @@ class Receiptful_EDD_Software_Licensing_Compatibility {
 					'value'	=> $license_key,
 				);
 
-
-
 			}
 		}
-
 
 		return $items;
 

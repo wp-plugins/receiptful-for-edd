@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 class Receiptful_Email {
 
+
 	/**
 	 * Constructor.
 	 *
@@ -72,8 +73,7 @@ class Receiptful_Email {
 
 		// Resend receipt when it already has a Receiptful ID
 		if ( '' != $receiptful_id = get_post_meta( $payment_id, '_receiptful_receipt_id', true ) ) {
-			$response = $this->resend_receipt( $payment_id, $receiptful_id );
-			return $response;
+			return $this->resend_receipt( $payment_id, $receiptful_id );
 		}
 
 
@@ -94,6 +94,9 @@ class Receiptful_Email {
 		$response = Receiptful()->api->receipt( $order_args );
 
 		if ( is_wp_error( $response ) ) {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Message: %s. Receipt added to resend queue.', 'receiptful' ), implode( ', ', $response->get_error_messages() ) ) );
+
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
@@ -112,15 +115,19 @@ class Receiptful_Email {
 				do_action( 'receiptful_add_upsell', $upsell, $payment_id );
 			}
 
-		} else {
+		} elseif ( in_array( $response['response']['code'], array( '401', '500', '503' ) ) ) {
 
-			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %s Error Message: %s', 'receiptful' ),
-				$response['response']['code'], $response['response']['message'] ) );
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s. Receipt added to resend queue.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
+
+		} else {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error sending customer receipt via Receiptful. Error Code: %s Error Message: %s.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
+
 		}
 
 		/**
@@ -154,8 +161,10 @@ class Receiptful_Email {
 
 		if ( is_wp_error( $response ) ) {
 
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Message: %s. Receipt added to resend queue.', 'receiptful' ), implode( ', ', $response->get_error_messages() ) ) );
+
 			// queue the message for sending via cron
-			$resend_queue	= get_option( '_receiptful_resend_queue' );
+			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
 
@@ -164,15 +173,18 @@ class Receiptful_Email {
 			edd_insert_payment_note( $payment_id, __( 'Customer receipt resent via Receiptful.', 'receiptful' ) );
 			$body = json_decode( $response ['body'], true );
 
-		} else {
+		} elseif ( in_array( $response['response']['code'], array( '401', '500', '503' ) ) ) {
 
-			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %s Error Message: %s', 'receiptful' ),
-				$response['response']['code'], $response['response']['message'] ) );
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s. Receipt added to resend queue.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 			// queue the message for sending via cron
 			$resend_queue = get_option( '_receiptful_resend_queue' );
 			$resend_queue[ $payment_id ] = $payment_id;
 			update_option( '_receiptful_resend_queue', $resend_queue );
+
+		} else {
+
+			edd_insert_payment_note( $payment_id, sprintf( __( 'Error resending customer receipt via Receiptful. Error Code: %1$s Error Message: %2$s.', 'receiptful' ), $response['response']['code'], $response['response']['message'] ) );
 
 		}
 
@@ -197,15 +209,33 @@ class Receiptful_Email {
 
 		$items			= array();
 		$payment_data	= edd_get_payment_meta( $payment_id );
+		$meta_data		= array();
 
 		foreach ( $payment_data['cart_details'] as $download ) {
 
+			$edd_download	= new EDD_Download( $download['id'] );
+			$price_id		= edd_get_cart_item_price_id( $download );
+			$name 			= ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' );
+
+			if ( ! is_null( $price_id ) ) {
+				$name .= " - " . edd_get_price_option_name( $download['id'], $price_id, $payment_id );
+			}
+
+			// Meta
+			if ( $download_note = $edd_download->get_notes() ) {
+				$meta_data[] = array(
+					'key'	=> __( 'Note', 'receiptful' ),
+					'value'	=> $download_note,
+				);
+			}
+
 			$items[] = array(
 				'reference'		=> $download['id'],
-				'description'	=> ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' ),
+				'description'	=> $name,
 				'quantity'		=> $download['quantity'],
-				'amount'		=> $download['item_price'],
+				'amount'		=> isset( $download['item_price'] ) ? number_format( (float) $download['item_price'], 2, '.', '' ) : number_format( 0, 2, '.', '' ),
 				'downloadUrls'	=> $this->maybe_get_download_urls( $download['id'], $payment_id, $download ),
+				'metas'			=> $meta_data,
 			);
 
 		}
@@ -227,26 +257,27 @@ class Receiptful_Email {
 	 */
 	public function api_args_get_subtotals( $payment_id ) {
 
-		$subtotals		= array();
-		$payment_data	= edd_get_payment_meta( $payment_id );
+		$subtotals			= array();
+		$payment_data		= edd_get_payment_meta( $payment_id );
+		$discounts 			= wp_list_pluck( $payment_data['cart_details'], 'discount' );
+		$discount_amount 	= array_sum( $discounts );
+
+		// Subtotal
+		if ( edd_use_taxes() || 0 < $discount_amount ) {
+			$subtotals[] = array( 'description' => __( 'Subtotal', 'edd' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
+		}
 
 		// Discount
-		if ( 'none' != $payment_data['user_info']['discount'] ) {
-			$discounts = wp_list_pluck( $payment_data['cart_details'], 'discount' );
-
-			if ( is_array( $discounts ) ) {
-				$discount_amount = array_sum( $discounts );
-				$subtotals[] = array( 'description' => __( 'Discount', 'receiptful' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
-			}
+		if ( 0 < $discount_amount ) {
+			$subtotals[] = array( 'description' => __( 'Discount', 'edd' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
 		}
 
 		// Tax
 		if ( edd_use_taxes() ) {
 
-			// Subtotal
-			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
+
 			// Tax
-			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) $payment_data['tax'], 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Taxes', 'edd' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
 
 		}
 
@@ -296,7 +327,7 @@ class Receiptful_Email {
 			}
 		}
 
-		return apply_filters( 'receiptful_api_args_reated_downloads', $related_downloads, $items );
+		return apply_filters( 'receiptful_api_args_related_downloads', $related_downloads, $items );
 
 	}
 
@@ -325,6 +356,7 @@ class Receiptful_Email {
 		$from_email		= isset( $edd_settings['from_email'] ) ? $edd_settings['from_email'] : get_bloginfo( 'admin_email' );
 
 		$order_args = array(
+			'date'			=> date_i18n( 'c', strtotime( $payment_data['date'] ) ),
 			'reference'		=> edd_get_payment_number( $payment_id ),
 			'currency'		=> $payment_data['currency'],
 			'amount'		=> number_format( (float) $amount, 2, '.', '' ),
@@ -342,12 +374,12 @@ class Receiptful_Email {
 					'firstName'		=> $payment_data['user_info']['first_name'],
 					'lastName'		=> $payment_data['user_info']['last_name'],
 					'company'		=> '',
-					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? $payment_data['user_info']['address']['line1'] 	: '',
-					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? $payment_data['user_info']['address']['line2'] 	: '',
-					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? $payment_data['user_info']['address']['city'] 	: '',
-					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? $payment_data['user_info']['address']['state'] 	: '',
-					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? $payment_data['user_info']['address']['zip'] 		: '',
-					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? $payment_data['user_info']['address']['country'] 	: '',
+					'addressLine1'	=> isset( $payment_data['user_info']['address']['line1'] ) 		? (string) $payment_data['user_info']['address']['line1'] 	: '',
+					'addressLine2'	=> isset( $payment_data['user_info']['address']['line2'] ) 		? (string) $payment_data['user_info']['address']['line2'] 	: '',
+					'city'			=> isset( $payment_data['user_info']['address']['city'] ) 		? (string) $payment_data['user_info']['address']['city'] 	: '',
+					'state'			=> isset( $payment_data['user_info']['address']['state'] ) 		? (string) $payment_data['user_info']['address']['state'] 	: '',
+					'postcode'		=> isset( $payment_data['user_info']['address']['zip'] ) 		? (string) $payment_data['user_info']['address']['zip'] 	: '',
+					'country'		=> isset( $payment_data['user_info']['address']['country'] ) 	? (string) $payment_data['user_info']['address']['country'] : '',
 				),
 				'phone'	=> '',
 				'email'	=> $payment_data['user_info']['email'],
@@ -372,13 +404,14 @@ class Receiptful_Email {
 	 */
 	public function create_coupon( $data, $payment_id ) {
 
+		$discount_type	= '';
 		$coupon_code	= apply_filters( 'edd_coupon_code', $data['couponCode'] );
 		$expiry_date	= date_i18n( 'm/d/Y 23:59:59', strtotime( '+' . sanitize_text_field( $data['expiryPeriod'] ) . ' days' ) );
 		$payment_data	= edd_get_payment_meta( $payment_id );
 
 		// Check for duplicates
-		if ( edd_discount_exists( $coupon_code ) ) {
-			return;
+		if ( $coupon = edd_get_discount_by_code( $coupon_code ) ) {
+			return $coupon->ID;
 		}
 
 		if ( 'discountcoupon' == $data['upsellType'] ) {
@@ -395,9 +428,12 @@ class Receiptful_Email {
 
 		} elseif ( 'shippingcoupon' == $data['upsellType'] ) {
 			// Shipping doesn't exist in EDD
+			return false;
 		}
 
-		$meta = array(
+		$meta = apply_filters( 'edd_insert_discount', array(
+			'name'						=> $coupon_code,
+			'status'					=> 'active',
 			'code'						=> $coupon_code,
 			'uses'						=> '',
 			'max_uses'					=> 1,
@@ -414,9 +450,7 @@ class Receiptful_Email {
 			'is_receiptful_coupon'		=> 'yes',
 			'receiptful_coupon_payment'	=> $payment_id,
 			'restrict_customer_email'	=> ! empty( $data['emailLimit'] ) ? array( $payment_data['user_info']['email'] ) : array(),
-		);
-
-		$meta = apply_filters( 'edd_insert_discount', $meta );
+		), $payment_id );
 
 		do_action( 'edd_pre_insert_discount', $meta );
 
@@ -454,7 +488,8 @@ class Receiptful_Email {
 
 		$urls			= array();
 		$payment_data	= edd_get_payment_meta( $payment_id );
-		$files			= edd_get_download_files( $download_id );
+		$price_id		= edd_get_cart_item_price_id( $item );
+		$files			= edd_get_download_files( $download_id, $price_id );
 
 		if ( ! empty( $files ) ) {
 
@@ -492,14 +527,14 @@ class Receiptful_Email {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $data Payment data.
+	 * @param array $data Array containing the purchase ID.
 	 */
 	public function resend_transactional_email( $data ) {
 
 		$payment_id = absint( $data['purchase_id'] );
 
 		if ( empty( $payment_id ) ) {
-			return;
+			return false;
 		}
 
 		$this->send_transactional_email( $payment_id );
@@ -542,7 +577,7 @@ class Receiptful_Email {
 				$response = $this->send_transactional_email( $val );
 
 				// Remove fron queue when its successfully send
-				if ( isset( $response['response']['code'] ) && ( '201' == $response['response']['code'] || '200' == $response['response']['code'] ) ) {
+				if ( ! is_wp_error( $response ) && in_array( $response['response']['code'], array( '201', '200' ) ) ) {
 					unset( $resend_queue[ $key ] );
 				}
 
