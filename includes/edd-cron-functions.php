@@ -177,6 +177,7 @@ function receiptful_initial_receipt_sync() {
 		'fields'			=> 'ids',
 		'posts_per_page'	=> '225',
 		'post_type'			=> 'edd_payment',
+		'post_status'		=> array_keys( edd_get_payment_statuses() ),
 		'meta_query'		=> array(
 			array(
 				'key'		=> '_receiptful_last_update',
@@ -201,10 +202,9 @@ function receiptful_initial_receipt_sync() {
 	$args = array();
 	foreach ( $receipt_ids as $receipt_id ) {
 
-		$items 				= Receiptful()->email->api_args_get_items( $receipt_id );
-		$subtotals 			= Receiptful()->email->api_args_get_subtotals( $receipt_id );
-		$related_downloads 	= Receiptful()->email->api_args_get_related_downloads( $items );
-		$order_args 		= Receiptful()->email->api_args_get_order_args( $receipt_id, $items, $subtotals, $related_downloads );
+		$items 		= Receiptful()->email->api_args_get_items( $receipt_id );
+		$subtotals 	= Receiptful()->email->api_args_get_subtotals( $receipt_id );
+		$order_args = Receiptful()->email->api_args_get_order_args( $receipt_id, $items, $subtotals, $related_downloads = array() );
 
 		$args[] = $order_args;
 
@@ -230,12 +230,12 @@ function receiptful_initial_receipt_sync() {
 		$failed_ids = array();
 		$body 		= json_decode( $response['body'], 1 );
 		foreach ( $body['errors'] as $error ) {
-			$failed_ids[] = isset( $error['error']['product_id'] ) ? $error['error']['product_id'] : null;
+			$failed_ids[] = isset( $error['error']['reference'] ) ? $error['error']['reference'] : null;
 		}
 
 		// Set empty update time, so its not retried at next CRON job
 		foreach ( $receipt_ids as $receipt_id ) {
-			if ( ! in_array( $receipt_id, $failed_ids ) ) {
+			if ( ! in_array( $receipt_id, $failed_ids ) && ! in_array( edd_get_payment_number( $receipt_id ), $failed_ids ) ) {
 				update_post_meta( $receipt_id, '_receiptful_last_update', time() );
 			} else {
 				update_post_meta( $receipt_id, '_receiptful_last_update', '' );

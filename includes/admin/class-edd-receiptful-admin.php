@@ -56,6 +56,9 @@ class EDD_Receiptful_Admin {
 		// Remove settings from email tab
 		add_filter( 'edd_settings_emails', array( $this, 'remove_email_tab_settings' ) );
 
+		// Add a 'Receiptful is active' notice
+		add_action( 'edd_receiptful_active_notice', array( $this, 'receiptful_active_notice_callback' ) );
+
 		// Add settings to 'Extensions' tab
 		add_filter( 'edd_settings_extensions', array( $this, 'register_settings' ) );
 
@@ -93,13 +96,27 @@ class EDD_Receiptful_Admin {
 		unset( $settings['purchase_receipt'] );
 
 		$new_settings['receiptful_active_notice'] = array(
-			'id' 	=> 'receiptful_active_notice',
-			'desc' 	=> '<strong>' . __( 'Default receipt email settings are unavailable. You\'re sending awesome emails through Receiptful.', 'receiptful' ) . '</strong>',
-			'type' 	=> 'receiptful_text',
+			'id'	=> 'receiptful_active_notice',
+			'type'	=> 'hook',
 		);
 		$settings = array_merge( $new_settings, $settings );
 
 		return $settings;
+
+	}
+
+
+	/**
+	 * Receiptful active descrition.
+	 *
+	 * Display a notice/description on the position where the old receipt
+	 * settings were displayed.
+	 *
+	 * @since 1.0.4
+	 */
+	public function receiptful_active_notice_callback() {
+
+		echo '<strong>' . __( 'Default receipt email settings are unavailable. You\'re sending awesome emails through Receiptful.', 'receiptful' ) . '</strong>';
 
 	}
 
@@ -216,18 +233,4 @@ class EDD_Receiptful_Admin {
 	}
 
 
-}
-
-
-/**
- * Receiptful text Callback
- *
- * Render specific text as a setting on the emails tab.
- *
- * @since 1.0.0
- *
- * @param array $args Arguments passed by the setting
- */
-function edd_receiptful_text_callback( $args ) {
-	echo $args['desc'];
 }

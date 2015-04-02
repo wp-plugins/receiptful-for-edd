@@ -1,0 +1,175 @@
+# Copyright (C) 2015 Receiptful for EDD
+# This file is distributed under the same license as the Receiptful for EDD package.
+# Translators:
+# FxB <fxb@wp-translations.org>, 2015
+msgid ""
+msgstr ""
+"Project-Id-Version: Receiptful for EDD\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/receiptful-for-edd\n"
+"POT-Creation-Date: 2015-03-05 09:44:01+00:00\n"
+"PO-Revision-Date: 2015-03-06 10:05+0000\n"
+"Last-Translator: FxB <fxb@wp-translations.org>\n"
+"Language-Team: French (France) (http://www.transifex.com/projects/p/receiptful-for-edd/language/fr_FR/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr_FR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: includes/admin/class-edd-receiptful-admin.php:94
+msgid ""
+"<strong>Default receipt email settings are unavailable. You're sending "
+"awesome emails through Receiptful.</strong>"
+msgstr "<strong>Les réglages par défaut des reçus par e-mail ne sont pas disponibles. Vous envoyez de superbes e-mails grâce à Receiptful.</strong>"
+
+#: includes/admin/class-edd-receiptful-admin.php:119
+msgid "Receipful"
+msgstr "Receiptful"
+
+#: includes/admin/class-edd-receiptful-admin.php:120
+msgid "Setings for Receiptful"
+msgstr "Réglages de Receiptful"
+
+#: includes/admin/class-edd-receiptful-admin.php:125
+msgid "API Key"
+msgstr "Clé API"
+
+#: includes/admin/class-edd-receiptful-admin.php:126
+msgid ""
+"Add your API key (<a href=\"%s\" target=\"_blank\">which you can find "
+"here</a>) to get started."
+msgstr "Ajoutez votre clé API ( <a href=\"%s\" target=\"_blank\">que vous pouvez trouver ici</a> ) pour vous lancez."
+
+#: includes/admin/class-edd-receiptful-admin.php:150
+msgid "<a href=\"%s\">Edit My Template</a> | <a href=\"%s\">View Statistics</a>"
+msgstr "<a href=\"%s\">Modifier mon modèle</a> | <a href=\"%s\">Voir les statistiques</a>"
+
+#: includes/admin/class-edd-receiptful-admin.php:174
+msgid "Email restrictions"
+msgstr "Restrictions d'e-mail"
+
+#: includes/admin/class-edd-receiptful-admin.php:179
+msgid ""
+"List of emails to restrict the coupon usage with. Separate by comma (,)"
+msgstr "La liste des e-mails auxquels restreindre l'utilisation du code de remise. Séparez-les par des virgules (,)"
+
+#: includes/class-receiptful-email.php:99
+msgid ""
+"Error sending customer receipt via Receiptful. Error Message: %s. Receipt "
+"added to resend queue."
+msgstr "Erreur d'envoi du reçu via Receiptful. Message d'erreur : %s. Le reçu a été ajouté à la liste des renvois."
+
+#: includes/class-receiptful-email.php:108
+msgid "Customer receipt sent via Receiptful."
+msgstr "Reçu client envoyé via Receiptful."
+
+#: includes/class-receiptful-email.php:121
+msgid ""
+"Error sending customer receipt via Receiptful. Error Code: %1$s Error "
+"Message: %2$s. Receipt added to resend queue."
+msgstr "Erreur d'envoi du reçu via Receiptful. Code d'erreur : %1$s. Message d'erreur : %2$s. Le reçu a été ajouté à la liste des renvois."
+
+#: includes/class-receiptful-email.php:130
+msgid ""
+"Error sending customer receipt via Receiptful. Error Code: %s Error Message:"
+" %s."
+msgstr "Erreur d'envoi du reçu via Receiptful. Code d'erreur : %1$s. Message d'erreur : %2$s."
+
+#: includes/class-receiptful-email.php:165
+msgid ""
+"Error resending customer receipt via Receiptful. Error Message: %s. Receipt "
+"added to resend queue."
+msgstr "Erreur de renvoi du reçu via Receiptful. Message d'erreur : %s. Le reçu a été ajouté à la liste des renvois."
+
+#: includes/class-receiptful-email.php:174
+msgid "Customer receipt resent via Receiptful."
+msgstr "Reçu client renvoyé via Receiptful."
+
+#: includes/class-receiptful-email.php:179
+msgid ""
+"Error resending customer receipt via Receiptful. Error Code: %1$s Error "
+"Message: %2$s. Receipt added to resend queue."
+msgstr "Erreur de renvoi du reçu via Receiptful. Code d'erreur : %1$s. Message d'erreur : %2$s. Le reçu a été ajouté à la liste des renvois."
+
+#: includes/class-receiptful-email.php:188
+msgid ""
+"Error resending customer receipt via Receiptful. Error Code: %1$s Error "
+"Message: %2$s."
+msgstr "Erreur de renvoi du reçu via Receiptful. Code d'erreur : %1$s. Message d'erreur : %2$s."
+
+#: includes/class-receiptful-email.php:218
+#: includes/class-receiptful-email.php:311
+msgid "Nameless product"
+msgstr "Produit sans nom"
+
+#: includes/class-receiptful-email.php:260
+msgid "Discount"
+msgstr "Remise"
+
+#: includes/class-receiptful-email.php:268
+msgid "Subtotal"
+msgstr "Sous-total"
+
+#: includes/class-receiptful-email.php:270
+msgid "Taxes"
+msgstr "TVA"
+
+#: includes/class-receiptful-email.php:486
+#: includes/class-receiptful-email.php:497
+msgid "Download %s"
+msgstr "Télécharger %s"
+
+#: includes/class-receiptful-front-end.php:56
+msgid "Receipt"
+msgstr "Reçu"
+
+#: includes/class-receiptful-front-end.php:73
+msgid "View receipt online"
+msgstr "Voir le reçu en ligne"
+
+#: includes/class-receiptful-front-end.php:75
+msgid "Sorry, no online receipt available"
+msgstr "Désolé, aucun reçu en ligne n'est disponible."
+
+#: includes/class-receiptful-front-end.php:115
+msgid ""
+"This discount is only valid for certain emails. Please use the correct "
+"email."
+msgstr "Cette remise n'est valable que pour certains e-mails. Veuillez utiliser une adresse valide."
+
+#: includes/edd-cron-functions.php:27
+msgid "Every quarter"
+msgstr "Chaque trimestre"
+
+#: receiptful-edd.php:303
+msgid ""
+"Receiptful has been activated. Please click <a "
+"href=\"edit.php?post_type=download&page=edd-"
+"settings&tab=extensions\">here</a> to add your API key & supercharge your "
+"receipts."
+msgstr "Receiptful est activé. Veuillez cliquer <a href=\"edit.php?post_type=download&page=edd-settings&tab=extensions\">ici</a> pour ajouter votre clé d'API & booster vos reçus."
+
+#: receiptful-edd.php:329
+msgid "Settings"
+msgstr "Réglages"
+
+#. Plugin Name of the plugin/theme
+msgid "Receiptful for EDD"
+msgstr "Receiptful for EDD"
+
+#. #-#-#-#-#  receiptful-for-edd.pot (Receiptful for EDD 1.0.2)  #-#-#-#-#
+#. Plugin URI of the plugin/theme
+#. #-#-#-#-#  receiptful-for-edd.pot (Receiptful for EDD 1.0.2)  #-#-#-#-#
+#. Author URI of the plugin/theme
+msgid "http://receiptful.com"
+msgstr "http://receiptful.com"
+
+#. Description of the plugin/theme
+msgid ""
+"Receiptful replaces and supercharges the default EDD receipts. Just "
+"activate, add API and be awesome."
+msgstr "Receiptful remplace et booste les reçus par défaut d'EDD. Vous n'avez qu'à l'activer, à ajouter la clé API et le tour est joué."
+
+#. Author of the plugin/theme
+msgid "Receiptful"
+msgstr "Receiptful"

@@ -218,7 +218,7 @@ class Receiptful_Email {
 			$name 			= ! empty( $download['name'] ) ? $download['name'] : __( 'Nameless product', 'receiptful' );
 
 			if ( ! is_null( $price_id ) ) {
-				$name 	.= " - " . edd_get_price_option_name( $download['id'], $price_id, $payment_id );
+				$name .= " - " . edd_get_price_option_name( $download['id'], $price_id, $payment_id );
 			}
 
 			// Meta
@@ -264,12 +264,12 @@ class Receiptful_Email {
 
 		// Subtotal
 		if ( edd_use_taxes() || 0 < $discount_amount ) {
-			$subtotals[] = array( 'description' => __( 'Subtotal', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Subtotal', 'edd' ), 'amount' => number_format( (float) edd_get_payment_subtotal( $payment_id ), 2, '.', '' ) );
 		}
 
 		// Discount
 		if ( 0 < $discount_amount ) {
-			$subtotals[] = array( 'description' => __( 'Discount', 'receiptful' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Discount', 'edd' ), 'amount' => number_format( (float) $discount_amount, 2, '.', '' ) );
 		}
 
 		// Tax
@@ -277,7 +277,7 @@ class Receiptful_Email {
 
 
 			// Tax
-			$subtotals[] = array( 'description' => __( 'Taxes', 'receiptful' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
+			$subtotals[] = array( 'description' => __( 'Taxes', 'edd' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
 
 		}
 
@@ -327,7 +327,7 @@ class Receiptful_Email {
 			}
 		}
 
-		return apply_filters( 'receiptful_api_args_reated_downloads', $related_downloads, $items );
+		return apply_filters( 'receiptful_api_args_related_downloads', $related_downloads, $items );
 
 	}
 
@@ -404,13 +404,14 @@ class Receiptful_Email {
 	 */
 	public function create_coupon( $data, $payment_id ) {
 
+		$discount_type	= '';
 		$coupon_code	= apply_filters( 'edd_coupon_code', $data['couponCode'] );
 		$expiry_date	= date_i18n( 'm/d/Y 23:59:59', strtotime( '+' . sanitize_text_field( $data['expiryPeriod'] ) . ' days' ) );
 		$payment_data	= edd_get_payment_meta( $payment_id );
 
 		// Check for duplicates
-		if ( edd_discount_exists( $coupon_code ) ) {
-			return;
+		if ( $coupon = edd_get_discount_by_code( $coupon_code ) ) {
+			return $coupon->ID;
 		}
 
 		if ( 'discountcoupon' == $data['upsellType'] ) {
@@ -427,9 +428,12 @@ class Receiptful_Email {
 
 		} elseif ( 'shippingcoupon' == $data['upsellType'] ) {
 			// Shipping doesn't exist in EDD
+			return false;
 		}
 
-		$meta = array(
+		$meta = apply_filters( 'edd_insert_discount', array(
+			'name'						=> $coupon_code,
+			'status'					=> 'active',
 			'code'						=> $coupon_code,
 			'uses'						=> '',
 			'max_uses'					=> 1,
@@ -446,9 +450,7 @@ class Receiptful_Email {
 			'is_receiptful_coupon'		=> 'yes',
 			'receiptful_coupon_payment'	=> $payment_id,
 			'restrict_customer_email'	=> ! empty( $data['emailLimit'] ) ? array( $payment_data['user_info']['email'] ) : array(),
-		);
-
-		$meta = apply_filters( 'edd_insert_discount', $meta );
+		), $payment_id );
 
 		do_action( 'edd_pre_insert_discount', $meta );
 
@@ -525,14 +527,14 @@ class Receiptful_Email {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $data Payment data.
+	 * @param array $data Array containing the purchase ID.
 	 */
 	public function resend_transactional_email( $data ) {
 
 		$payment_id = absint( $data['purchase_id'] );
 
 		if ( empty( $payment_id ) ) {
-			return;
+			return false;
 		}
 
 		$this->send_transactional_email( $payment_id );

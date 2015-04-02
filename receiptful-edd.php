@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.4
+ * Version:			1.0.5
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
@@ -36,7 +36,7 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 * @var string $version Plugin version number.
 	 */
-	public $version = '1.0.4';
+	public $version = '1.0.5';
 
 
 	/**
@@ -299,9 +299,9 @@ class Receiptful_EDD {
 
 		$edd_settings = get_option( 'edd_settings' );
 
-		if ( isset( $edd_settings['receiptful_api_key'] ) && empty( $edd_settings['receiptful_api_key'] ) ) {
+		if ( ! isset( $edd_settings['receiptful_api_key'] ) || empty( $edd_settings['receiptful_api_key'] ) ) {
 
-			?><div class="updated">
+			?><div class='updated'>
 				<p><?php
 					_e( 'Receiptful has been activated. Please click <a href="edit.php?post_type=download&page=edd-settings&tab=extensions">here</a> to add your API key & supercharge your receipts.', 'receiptful' );
 				?></p>
