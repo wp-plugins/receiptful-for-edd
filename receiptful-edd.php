@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.5
+ * Version:			1.0.6
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
@@ -36,7 +36,7 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 * @var string $version Plugin version number.
 	 */
-	public $version = '1.0.5';
+	public $version = '1.0.6';
 
 
 	/**
@@ -274,14 +274,24 @@ class Receiptful_EDD {
 			}
 
 			?><script type='text/javascript'>
-				Receiptful.conversion.reference	= '<?php echo esc_js( $payment->ID ); ?>';
-				Receiptful.conversion.amount	= <?php echo esc_js( $amount ); ?>;
-				Receiptful.conversion.currency	= '<?php echo esc_js( edd_get_currency() ); ?>';
-				<?php echo $coupon_tracking_code; ?>
-				Receiptful.trackConversion();
+				document.addEventListener('DOMContentLoaded', function(event) {
+					if ( typeof Receiptful !== 'undefined' ) {
+						Receiptful.conversion.reference	= '<?php echo esc_js( $payment->ID ); ?>';
+						Receiptful.conversion.amount	= <?php echo esc_js( $amount ); ?>;
+						Receiptful.conversion.currency	= '<?php echo esc_js( edd_get_currency() ); ?>';
+						<?php echo $coupon_tracking_code; ?>
+						Receiptful.trackConversion();
+					}
+				});
 			</script><?php
 		} else {
-			?><script type='text/javascript'>Receiptful.setTrackingCookie();</script><?php
+			?><script type='text/javascript'>
+				document.addEventListener('DOMContentLoaded', function(event) {
+					if ( typeof Receiptful !== 'undefined' ) {
+						Receiptful.setTrackingCookie();
+					}
+				});
+			</script><?php
 		}
 
 	}
@@ -297,13 +307,11 @@ class Receiptful_EDD {
 	 */
 	public function plugin_activation() {
 
-		$edd_settings = get_option( 'edd_settings' );
-
-		if ( ! isset( $edd_settings['receiptful_api_key'] ) || empty( $edd_settings['receiptful_api_key'] ) ) {
+		if ( edd_get_option( 'receiptful_api_key', '' ) == '' ) {
 
 			?><div class='updated'>
 				<p><?php
-					_e( 'Receiptful has been activated. Please click <a href="edit.php?post_type=download&page=edd-settings&tab=extensions">here</a> to add your API key & supercharge your receipts.', 'receiptful' );
+					echo sprintf( __( 'Receiptful has been activated. Please click <a href="%s">here</a> to add your API key & supercharge your receipts.', 'receiptful' ), 'edit.php?post_type=download&page=edd-settings&tab=extensions#receiptful' );
 				?></p>
 			</div><?php
 

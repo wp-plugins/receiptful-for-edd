@@ -89,7 +89,6 @@ class Receiptful_Email {
 		// Purchase args
 		$order_args = $this->api_args_get_order_args( $payment_id, $items, $subtotals, $related_downloads );
 
-
 		// API Response
 		$response = Receiptful()->api->receipt( $order_args );
 
@@ -274,11 +273,7 @@ class Receiptful_Email {
 
 		// Tax
 		if ( edd_use_taxes() ) {
-
-
-			// Tax
 			$subtotals[] = array( 'description' => __( 'Taxes', 'edd' ), 'amount' => number_format( (float) edd_get_payment_tax( $payment_id ), 2, '.', '' ) );
-
 		}
 
 		return apply_filters( 'receiptful_api_args_subtotals', $subtotals, $payment_id );
@@ -349,10 +344,6 @@ class Receiptful_Email {
 
 		$payment_data	= edd_get_payment_meta( $payment_id );
 		$amount			= edd_get_payment_amount( $payment_id );
-
-		$card_type		= '';
-		$last4			= '';
-		$customer_ip	= '';
 		$from_email		= isset( $edd_settings['from_email'] ) ? $edd_settings['from_email'] : get_bloginfo( 'admin_email' );
 
 		$order_args = array(
@@ -364,11 +355,10 @@ class Receiptful_Email {
 			'from'			=> $from_email,
 			'payment'		=> array(
 				'type'	=> edd_get_gateway_checkout_label( edd_get_payment_gateway( $payment_id ) ),
-				'last4'	=> $last4
 			),
 			'items'			=> $items,
 			'subtotals'		=> $subtotals,
-			'customerIp'	=> $customer_ip,
+			'customerIp'	=> '',
 			'billing'		=> array(
 				'address'	=> array(
 					'firstName'		=> $payment_data['user_info']['first_name'],

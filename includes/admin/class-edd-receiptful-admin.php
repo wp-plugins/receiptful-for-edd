@@ -71,6 +71,9 @@ class EDD_Receiptful_Admin {
 		// Save restriction field
 		add_action( 'edd_edit_discount', array( $this, 'edit_coupon_save_email_restriction_field' ), 9, 1 );
 
+		// Remove public key when API key gets changed (will be gotten automatically)
+		add_action( 'update_option_edd_settings', array( $this, 'delete_public_key' ), 10, 2 );
+
 	}
 
 
@@ -229,6 +232,22 @@ class EDD_Receiptful_Admin {
 		}
 
 		update_post_meta( $data['discount-id'], '_edd_discount_restrict_customer_email', $emails );
+
+	}
+
+
+	/**
+	 * Delete public key.
+	 *
+	 * Delete the public key when the API key gets updated.
+	 *
+	 * @since 1.0.6
+	 */
+	public function delete_public_key( $old_value, $value ) {
+
+		if ( isset( $old_value['receiptful_api_key'] ) && isset( $value['receiptful_api_key'] ) && $old_value['receiptful_api_key'] !== $value['receiptful_api_key'] ) :
+			delete_option( 'receiptful_public_user_key' );
+		endif;
 
 	}
 
