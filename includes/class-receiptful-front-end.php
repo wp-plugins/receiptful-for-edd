@@ -41,6 +41,9 @@ class Receiptful_Front_End {
 		// Check if there is a email resctriction
 		add_filter( 'edd_is_discount_valid', array( $this, 'coupon_restrict_email_validation' ), 10, 4 );
 
+		// Track pageviews
+		add_action( 'wp_footer', array( $this, 'page_tracking' ), 100 );
+
 	}
 
 
@@ -118,6 +121,84 @@ class Receiptful_Front_End {
 		}
 
 		return $return;
+
+	}
+
+
+	/**
+	 * Product page tracking.
+	 *
+	 * Track the product pageview for better product recommendations.
+	 *
+	 * @since 1.0.6
+	 */
+	public function product_page_tracking() {
+
+		_deprecated_function( __METHOD__, '1.0.7', 'page_tracking' );
+
+		return $this->page_tracking();
+
+		if ( ! is_singular( 'download' ) ) {
+			return;
+		}
+
+		$public_user_key 	= Receiptful()->api->get_public_user_key();
+		$product_id 		= get_the_ID();
+		$customer 			= is_user_logged_in() ? get_current_user_id() : '';
+
+		// Bail if public user key is empty/invalid
+		if ( ! $public_user_key ) {
+			return false;
+		}
+
+		?><script type='text/javascript'>
+			document.addEventListener('DOMContentLoaded', function(event) {
+				if ( typeof Receiptful !== 'undefined' ) {
+					Receiptful.init({
+						user: '<?php echo esc_js( $public_user_key ); ?>',
+						product: '<?php echo esc_js( $product_id ); ?>',
+						customer: '<?php echo esc_js( $customer ); ?>'
+					});
+				}
+			});
+		</script><?php
+
+	}
+
+
+	/**
+	 * Page tracking.
+	 *
+	 * Track the pageview for better product recommendations.
+	 *
+	 * @since 1.0.7
+	 */
+	public function page_tracking() {
+
+		$public_user_key 	= Receiptful()->api->get_public_user_key();
+		$product_id 		= 'download' == get_post_type( get_the_ID() ) ? get_the_ID() : null;
+		$customer 			= is_user_logged_in() ? get_current_user_id() : '';
+		$cart				= edd_get_cart_contents();
+		$product_ids		= is_array( $cart ) ? array_values( wp_list_pluck( edd_get_cart_contents(), 'id' ) ) : array();
+
+		// Bail if public user key is empty/invalid
+		if ( ! $public_user_key ) {
+			return false;
+		}
+
+		?><script type='text/javascript'>
+			document.addEventListener('DOMContentLoaded', function(event) {
+				if ( typeof Receiptful !== 'undefined' ) {
+					Receiptful.init({
+						user: '<?php echo esc_js( $public_user_key ); ?>',
+						product: '<?php echo esc_js( $product_id ); ?>',
+						cart: '<?php echo esc_js( implode( ',', $product_ids ) ); ?>',
+						customer: '<?php echo esc_js( $customer ); ?>',
+						recommend: <?php echo true == edd_get_option( 'receiptful_enable_recommendations', false ) ? '1' : '0'; ?>
+					});
+				}
+			});
+		</script><?php
 
 	}
 
