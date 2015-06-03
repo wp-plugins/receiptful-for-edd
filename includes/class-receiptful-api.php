@@ -35,10 +35,7 @@ class Receiptful_Api {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-
-		$edd_settings	= get_option( 'edd_settings' );
-		$this->api_key	= isset( $edd_settings['receiptful_api_key'] ) ? $edd_settings['receiptful_api_key'] : '';
-
+		$this->api_key = edd_get_option( 'receiptful_api_key', '' );
 	}
 
 
@@ -153,6 +150,74 @@ class Receiptful_Api {
 		$response = $this->api_call( '/receipts/bulk', $args );
 
 		return $response;
+
+	}
+
+
+	/**
+	 * Public user key.
+	 *
+	 * Get the current user key based on the API key used.
+	 *
+	 * @since 1.0.6
+	 *
+	 * @return array|WP_Error WP_Error when the API call fails, otherwise the API response.
+	 */
+	public function get_public_user_key() {
+
+		$public_key = '';
+
+		if ( ! $public_key = get_option( 'receiptful_public_user_key' ) ) {
+
+			$response = $this->api_get( '/users/current' );
+
+			if ( is_wp_error( $response ) || '200' != $response['response']['code'] ) {
+				$public_key = '';
+			} else {
+				$response_body 	= json_decode( $response['body'], 1 );
+				$public_key 	= isset( $response_body['publicKey'] ) ? $response_body['publicKey'] : '';
+				update_option( 'receiptful_public_user_key', $public_key );
+			}
+
+		}
+
+		return $public_key;
+
+	}
+
+
+	/**
+	 * API GET.
+	 *
+	 * Send a GET request to the Receiptful API call.
+	 *
+	 * @since 1.0.6
+	 *
+	 * @param	string	$method				API method to call.
+	 * @param	array	$args				Arguments to pass in the API call.
+	 * @return	array	$response|WP_Error	API response.
+	 */
+	protected function api_get( $method, $args = array() ) {
+
+		$headers = array( 'Content-Type' => 'application/json', 'X-ApiKey' => $this->api_key );
+
+		$api_response = wp_remote_get( $this->url . $method, array(
+			'timeout'		=> 5,
+			'redirection'	=> 5,
+			'httpversion'	=> '1.0',
+			'blocking'		=> true,
+			'headers'		=> $headers,
+			'body'			=> json_encode( $args ),
+			'cookies'		=> array()
+		) );
+
+		if ( is_wp_error( $api_response ) ) {
+			return $api_response;
+		} else {
+			$response['response']	= $api_response['response'];
+			$response['body']		= $api_response['body'];
+			return $response;
+		}
 
 	}
 
