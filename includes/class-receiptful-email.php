@@ -375,6 +375,7 @@ class Receiptful_Email {
 				'email'	=> $payment_data['user_info']['email'],
 			),
 			'upsell'		=> array( 'products' => $related_downloads ),
+			'coupons'		=> $payment_data['user_info']['discount'] != 'none' ? explode( ', ', $payment_data['user_info']['discount'] ) : array(),
 		);
 
 		return apply_filters( 'receiptful_api_args_order_args', $order_args, $payment_id, $items, $subtotals, $related_downloads );
@@ -542,7 +543,7 @@ class Receiptful_Email {
 			}
 		}
 
-		wp_redirect( add_query_arg( array( 'edd-message' => 'email_sent', 'edd-action' => false, 'purchase_id' => false ) ) );
+		wp_redirect( esc_url_raw( add_query_arg( array( 'edd-message' => 'email_sent', 'edd-action' => false, 'purchase_id' => false ) ) ) );
 		exit;
 
 	}

@@ -3,7 +3,7 @@ Contributors: receiptful
 Tags: receiptful, receiptful edd, receiptful easy digital downloads, receipt, receipts, invoice, email, order confirmation, order mail, ecommerce mail
 Requires at least: 3.6.0
 Tested up to: 4.1.1
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,13 @@ Yes, Receiptful works with any theme - whether free, commercial or custom. You d
 
 
 == Changelog ==
+
+= 1.0.7 - 03/06/2015 =
+
+* [Add] - Recommendation compatibility
+* [Improvement] - Add used order coupons to the API call.
+* [Improvement] - Set products as 'hidden' when they're in draft or password protected.
+* [Depracated] - Receiptful()->print_scripts() will be automatically from now on in receiptful.init().
 
 = 1.0.6 - 09/04/2015 =
 

@@ -35,7 +35,7 @@ class Receiptful_Api {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		$this->api_key	= edd_get_option( 'receiptful_api_key', '' );
+		$this->api_key = edd_get_option( 'receiptful_api_key', '' );
 	}
 
 

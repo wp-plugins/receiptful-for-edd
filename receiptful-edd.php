@@ -5,7 +5,7 @@
  * Description:		Receiptful replaces and supercharges the default EDD receipts. Just activate, add API and be awesome.
  * Author:			Receiptful
  * Author URI:		http://receiptful.com
- * Version:			1.0.6
+ * Version:			1.0.7
  * Text Domain:		receiptful
  * Domain Path:		/languages/
  *
@@ -36,7 +36,7 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 * @var string $version Plugin version number.
 	 */
-	public $version = '1.0.6';
+	public $version = '1.0.7';
 
 
 	/**
@@ -157,6 +157,12 @@ class Receiptful_EDD {
 		$this->products = new Receiptful_Products();
 
 		/**
+		 * Receiptful Recommendation
+		 */
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-receiptful-recommendations.php';
+		$this->recommendations = new Receiptful_Recommendations();
+
+		/**
 		 * Helper functions
 		 */
 		require_once plugin_dir_path( __FILE__ ) . '/includes/edd-helper-functions.php';
@@ -197,9 +203,6 @@ class Receiptful_EDD {
 
 		// Add tracking script
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
-		// Tracking calls
-		add_action( 'wp_footer', array( $this, 'print_scripts' ), 99 );
 
 	}
 
@@ -245,6 +248,8 @@ class Receiptful_EDD {
 	 * @since 1.0.0
 	 */
 	public function print_scripts() {
+
+		return _deprecated_function( __METHOD__, '1.0.7' );
 
 		if ( edd_is_success_page() ) {
 

@@ -35,6 +35,13 @@ class EDD_Receiptful_Admin {
 
 
 	/**
+	 * URL for the store owner's Dashboard in the Receiptful app.
+	 * @var string
+	 */
+	public $receiptful_recommendations_url = 'https://app.receiptful.com/recommendations';
+
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -152,6 +159,12 @@ class EDD_Receiptful_Admin {
 			array(
 				'id'	=> 'receiptful_description',
 				'type'	=> 'hook',
+			),
+			array(
+				'id'	=> 'receiptful_enable_recommendations',
+				'name'	=> __( 'Enable recommendations', 'receiptful' ),
+				'desc'	=> sprintf( __( "Enable product recommendations. Requires to have set this up in the <a href='%s' target='_blank'>Recommendations section</a>.", 'receiptful' ), esc_attr( $this->receiptful_recommendations_url ) ),
+				'type'	=> 'checkbox',
 			),
 		);
 

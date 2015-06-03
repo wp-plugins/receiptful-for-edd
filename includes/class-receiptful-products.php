@@ -143,11 +143,19 @@ class Receiptful_Products {
 		$tags		= wp_get_post_terms( $download->ID, 'download_tag', array( 'fields' => 'names' ) );
 		$variants	= $this->get_formatted_variants( $download->ID );
 
+		if ( 'publish' != $download->post_status ) :
+			$hidden = true;
+		elseif ( ! empty( $download->post_password ) ) :
+			$hidden = true;
+		else :
+			$hidden = false;
+		endif;
+
 		$args = apply_filters( 'receiptful_update_product_args', array(
 			'product_id'	=> (string) $download->ID,
 			'title'			=> $download->post_title,
 			'description'	=> strip_shortcodes( $download->post_content ),
-			'hidden'		=> 'draft' == $download->post_status ? true : false,
+			'hidden'		=> $hidden,
 			'url'			=> get_permalink( $download->ID ),
 			'images'		=> $images,
 			'tags'			=> $tags,
